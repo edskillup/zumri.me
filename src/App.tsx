@@ -9,15 +9,31 @@ import {
   Linkedin,
   MapPin,
   BadgeCheck,
+  CheckCircle2,
+  Loader2,
 } from 'lucide-react';
+import { supabase } from './lib/supabase';
 
 function App() {
   const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'duplicate' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Join community:', email);
-    setEmail('');
+    setStatus('loading');
+
+    const { error } = await supabase
+      .from('subscribers')
+      .insert({ email: email.trim().toLowerCase() });
+
+    if (!error) {
+      setStatus('success');
+      setEmail('');
+    } else if (error.code === '23505') {
+      setStatus('duplicate');
+    } else {
+      setStatus('error');
+    }
   };
 
   return (
@@ -267,26 +283,52 @@ function App() {
             Every week or two, I send out what I've learned — an AI tool test, a few useful prompts, and reflections from my own work in education. It's free, practical, and written for real academic life.
           </p>
           <div className="max-w-md mx-auto pt-2">
-            <form onSubmit={handleSubmit} className="sm:flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email address"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:border-brand-600 outline-none text-sm"
-              />
-              <button
-                type="submit"
-                className="w-full sm:w-auto mt-2 sm:mt-0 bg-brand-600 hover:bg-brand-700 text-white font-medium px-6 py-3 rounded-lg text-sm whitespace-nowrap transition-colors inline-flex items-center justify-center space-x-2"
-              >
-                <span>Sign Up</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </form>
-            <p className="text-xs text-gray-400 mt-3">
-              No spam, no sales pitches. Just thoughtful updates on AI in education.
-            </p>
+            {status === 'success' ? (
+              <div className="flex items-center justify-center space-x-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-lg">
+                <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                <p className="text-sm font-medium">You're in! I'll be in touch soon.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="sm:flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (status !== 'idle') setStatus('idle');
+                  }}
+                  disabled={status === 'loading'}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:border-brand-600 outline-none text-sm disabled:opacity-60"
+                />
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="w-full sm:w-auto mt-2 sm:mt-0 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-medium px-6 py-3 rounded-lg text-sm whitespace-nowrap transition-colors inline-flex items-center justify-center space-x-2"
+                >
+                  {status === 'loading' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Sign Up</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+            {status === 'duplicate' && (
+              <p className="text-sm text-amber-600 mt-2">That email is already signed up — you're good!</p>
+            )}
+            {status === 'error' && (
+              <p className="text-sm text-red-500 mt-2">Something went wrong. Please try again.</p>
+            )}
+            {status === 'idle' && (
+              <p className="text-xs text-gray-400 mt-3">
+                No spam, no sales pitches. Just thoughtful updates on AI in education.
+              </p>
+            )}
           </div>
         </div>
       </section>
