@@ -11,12 +11,22 @@ import {
   BadgeCheck,
   CheckCircle2,
   Loader2,
+  ChevronDown,
+  ExternalLink,
+  Building2,
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
+type Role = 'Academic' | 'Student' | '';
+type Status = 'idle' | 'loading' | 'success' | 'duplicate' | 'error';
+
 function App() {
+  const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState<Role>('');
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'duplicate' | 'error'>('idle');
+  const [status, setStatus] = useState<Status>('idle');
+
+  const resetStatus = () => { if (status !== 'idle') setStatus('idle'); };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +34,16 @@ function App() {
 
     const { error } = await supabase
       .from('subscribers')
-      .insert({ email: email.trim().toLowerCase() });
+      .insert({
+        full_name: fullName.trim(),
+        role,
+        email: email.trim().toLowerCase(),
+      });
 
     if (!error) {
       setStatus('success');
+      setFullName('');
+      setRole('');
       setEmail('');
     } else if (error.code === '23505') {
       setStatus('duplicate');
@@ -35,6 +51,9 @@ function App() {
       setStatus('error');
     }
   };
+
+  const inputClass =
+    'w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-colors disabled:opacity-50';
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased">
@@ -71,7 +90,7 @@ function App() {
             <span className="text-brand-600">Come learn with me.</span>
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            I'm Zumri — a lecturer, management practitioner, and certified AI enthusiast. Every week, I test new AI tools in real academic settings and share what actually works. No hype, no jargon. Just honest findings.
+            I'm Zumri — a lecturer at multiple UK universities, management practitioner, and certified AI enthusiast. Every week, I test new AI tools in real academic settings and share what actually works. No hype, no jargon. Just honest findings.
           </p>
           <div className="pt-4 flex flex-wrap justify-center gap-3">
             <a href="#community" className="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-medium shadow-sm transition-colors">
@@ -98,7 +117,7 @@ function App() {
                     <GraduationCap className="h-8 w-8 text-white" />
                   </div>
                   <h2 className="text-2xl font-bold text-white leading-snug">Zumri Lahardeen</h2>
-                  <p className="text-brand-200 text-sm mt-1">Educator · Practitioner · AI Explorer</p>
+                  <p className="text-brand-200 text-sm mt-1">Lecturer · Practitioner · AI Explorer</p>
 
                   <div className="mt-5 space-y-2">
                     <div className="flex items-center text-brand-200 text-sm space-x-2">
@@ -114,6 +133,14 @@ function App() {
                       <Linkedin className="h-4 w-4 flex-shrink-0" />
                       <span>linkedin.com/in/zumrim</span>
                     </a>
+                  </div>
+
+                  <div className="mt-6 space-y-2">
+                    <p className="text-xs font-semibold text-brand-300 uppercase tracking-wider">Current Role</p>
+                    <div className="flex items-start space-x-2">
+                      <Building2 className="h-4 w-4 text-brand-300 flex-shrink-0 mt-0.5" />
+                      <span className="text-brand-100 text-sm">Associate Lecturer<br />Buckinghamshire New University</span>
+                    </div>
                   </div>
                 </div>
 
@@ -135,22 +162,27 @@ function App() {
                 <div>
                   <h3 className="text-sm font-semibold text-brand-600 uppercase tracking-wider mb-3">My Story</h3>
                   <p className="text-gray-600 leading-relaxed text-sm">
-                    I've spent over 12 years working across education, management practice, and digital strategy — from lecturing business and leadership programs at BCAS Kandy to supporting research at the University of Malaya. Today I work at Afterskills on data literacy, where I see daily how important practical skills are over theory.
+                    I'm an Associate Lecturer at Buckinghamshire New University, and have previously held Partner Lecturer positions at the University of East London and Solent University (Southampton) — delivering programmes across business, management, and leadership at undergraduate and postgraduate level.
                   </p>
                   <p className="text-gray-600 leading-relaxed text-sm mt-3">
-                    When AI tools started flooding into higher education, I didn't ban them or blindly embrace them. I got curious. I started testing them — in research workflows, in lesson planning, in grading — and writing up what I found. This site is where I share all of it, openly, with anyone who'll find it useful.
+                    During the COVID-19 crisis, I served as Task Force Leader for Digital Transformation at a pioneering private higher education institution in Sri Lanka. I designed, trained, and deployed a complete digital framework from the ground up — enabling the seamless continuation of academic operations under emergency conditions. That experience taught me that technology works in education only when the people using it are genuinely supported.
+                  </p>
+                  <p className="text-gray-600 leading-relaxed text-sm mt-3">
+                    Today, much of my work centres on professional development for academic staff: designing and delivering targeted trainings on digital teaching pedagogy, the strategic integration of AI in education, and internal software and methodology upskilling for institutional teams. When AI tools started flooding into higher education, I didn't dismiss them or blindly recommend them — I started testing them in real workflows and writing up exactly what I found. This site is where I share all of it.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold text-brand-600 uppercase tracking-wider mb-3">Background</h3>
+                  <h3 className="text-sm font-semibold text-brand-600 uppercase tracking-wider mb-3">Higher Education Roles</h3>
                   <div className="space-y-3">
                     {[
-                      { role: 'Senior Lecturer & Trainer', org: 'BCAS Kandy Campus', detail: '7+ years · Leadership, Management, Digital Skills' },
+                      { role: 'Associate Lecturer', org: 'Buckinghamshire New University', detail: 'Present' },
+                      { role: 'Partner Lecturer', org: 'University of East London', detail: 'Business & Management programmes' },
+                      { role: 'Partner Lecturer', org: 'Solent University, Southampton', detail: 'Business & Management programmes' },
+                      { role: 'Senior Lecturer & Task Force Lead', org: 'BCAS Kandy Campus', detail: 'Digital Transformation · COVID-19 emergency response' },
                       { role: 'Research Project Assistant', org: 'University of Malaya', detail: 'ISI research · Literature review & analysis' },
-                      { role: 'Business Development Executive', org: 'Afterskills', detail: 'Data literacy for all · Present' },
                     ].map((item) => (
-                      <div key={item.org} className="flex items-start space-x-3">
+                      <div key={`${item.role}-${item.org}`} className="flex items-start space-x-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 flex-shrink-0"></div>
                         <div>
                           <p className="text-sm font-semibold text-gray-800">{item.role}</p>
@@ -197,7 +229,7 @@ function App() {
               </div>
               <h3 className="text-lg font-bold text-gray-900">Tool Test Results</h3>
               <p className="text-gray-600 mt-2 text-sm leading-relaxed">
-                I spend hours testing AI tools so you don't have to. Real results from real academic use cases—what worked, what didn't, and why.
+                I spend hours testing AI tools so you don't have to. Real results from real academic use cases — what worked, what didn't, and why.
               </p>
             </div>
 
@@ -235,13 +267,13 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div id="educators" className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <div className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 uppercase tracking-wide mb-4">
-                Educators
+                Academics
               </div>
               <ul className="space-y-3 text-sm text-gray-700">
                 {[
                   "You're curious about AI but don't know where to start",
                   "You want to design AI-aware assignments without banning everything",
-                  "You're looking for practical, tested approaches—not theory",
+                  "You're looking for practical, tested approaches — not theory",
                 ].map((item) => (
                   <li key={item} className="flex items-start">
                     <span className="text-brand-500 mr-2 font-bold mt-0.5">·</span>
@@ -259,7 +291,7 @@ function App() {
                 {[
                   "You want to use AI ethically without crossing academic integrity lines",
                   "You're navigating literature reviews, research, or study strategies",
-                  "You want to build real skills—not just shortcuts",
+                  "You want to build real skills — not just shortcuts",
                 ].map((item) => (
                   <li key={item} className="flex items-start">
                     <span className="text-brand-500 mr-2 font-bold mt-0.5">·</span>
@@ -272,69 +304,159 @@ function App() {
         </div>
       </section>
 
-      {/* Community CTA */}
-      <section id="community" className="py-20 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="w-14 h-14 bg-brand-50 rounded-2xl flex items-center justify-center mx-auto">
-            <Mail className="h-7 w-7 text-brand-600" />
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Join the community</h2>
-          <p className="text-gray-600 max-w-lg mx-auto leading-relaxed">
-            Every week or two, I send out what I've learned — an AI tool test, a few useful prompts, and reflections from my own work in education. It's free, practical, and written for real academic life.
-          </p>
-          <div className="max-w-md mx-auto pt-2">
-            {status === 'success' ? (
-              <div className="flex items-center justify-center space-x-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                <p className="text-sm font-medium">You're in! I'll be in touch soon.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="sm:flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  required
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (status !== 'idle') setStatus('idle');
-                  }}
-                  disabled={status === 'loading'}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:border-brand-600 outline-none text-sm disabled:opacity-60"
-                />
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="w-full sm:w-auto mt-2 sm:mt-0 bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-medium px-6 py-3 rounded-lg text-sm whitespace-nowrap transition-colors inline-flex items-center justify-center space-x-2"
-                >
-                  {status === 'loading' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <span>Sign Up</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </>
+      {/* Newsletter Sign-up + Community */}
+      <section id="community" className="py-20 bg-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+
+          {/* Sign-up form */}
+          <div className="text-center space-y-6">
+            <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mx-auto">
+              <Mail className="h-7 w-7 text-brand-400" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Stay in the loop</h2>
+            <p className="text-gray-400 max-w-lg mx-auto leading-relaxed text-sm">
+              Every week or two, I send out what I've been testing — AI tool results, practical prompts, and honest reflections from real academic work. Free, no fluff, written for higher education.
+            </p>
+
+            <div className="max-w-md mx-auto text-left pt-2">
+              {status === 'success' ? (
+                <div className="flex items-center justify-center space-x-3 bg-emerald-900/40 border border-emerald-700 text-emerald-300 px-5 py-4 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                  <p className="text-sm font-medium">You're in! I'll be in touch soon.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-3">
+
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Jane Smith"
+                      required
+                      value={fullName}
+                      onChange={(e) => { setFullName(e.target.value); resetStatus(); }}
+                      disabled={status === 'loading'}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  {/* Academic Role */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                      I am a...
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(['Academic', 'Student'] as Role[]).map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => { setRole(option); resetStatus(); }}
+                          disabled={status === 'loading'}
+                          className={`py-3 rounded-lg border text-sm font-medium transition-all ${
+                            role === option
+                              ? 'bg-brand-600 border-brand-500 text-white shadow-sm'
+                              : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200'
+                          } disabled:opacity-50`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Hidden required input to trigger browser validation if role not selected */}
+                    <input
+                      type="text"
+                      required
+                      value={role}
+                      onChange={() => {}}
+                      className="sr-only"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="jane@university.ac.uk"
+                      required
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); resetStatus(); }}
+                      disabled={status === 'loading'}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="w-full bg-brand-600 hover:bg-brand-500 disabled:opacity-60 text-white font-semibold px-6 py-3.5 rounded-lg text-sm transition-colors inline-flex items-center justify-center space-x-2 mt-1"
+                  >
+                    {status === 'loading' ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <span>Sign Me Up</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+
+                  {status === 'duplicate' && (
+                    <p className="text-sm text-amber-400 text-center pt-1">That email is already signed up — you're good!</p>
                   )}
-                </button>
-              </form>
-            )}
-            {status === 'duplicate' && (
-              <p className="text-sm text-amber-600 mt-2">That email is already signed up — you're good!</p>
-            )}
-            {status === 'error' && (
-              <p className="text-sm text-red-500 mt-2">Something went wrong. Please try again.</p>
-            )}
-            {status === 'idle' && (
-              <p className="text-xs text-gray-400 mt-3">
+                  {status === 'error' && (
+                    <p className="text-sm text-red-400 text-center pt-1">Something went wrong. Please try again.</p>
+                  )}
+                </form>
+              )}
+
+              <p className="text-xs text-gray-600 mt-4 text-center">
                 No spam, no sales pitches. Just thoughtful updates on AI in education.
               </p>
-            )}
+            </div>
           </div>
+
+          {/* Divider */}
+          <div className="border-t border-white/10"></div>
+
+          {/* Join our Higher Education Community */}
+          <div className="text-center space-y-5">
+            <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mx-auto">
+              <Users className="h-7 w-7 text-brand-400" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Join our Higher Education Community</h2>
+            <p className="text-gray-400 max-w-xl mx-auto leading-relaxed text-sm">
+              This is a private, dedicated space for higher education professionals and students to network, share institutional initiatives, exchange teaching strategies, and continue the conversation beyond this newsletter. Whether you're navigating a new AI policy, designing a curriculum, or just looking for peers who get it — this community is for you.
+            </p>
+            <div className="pt-2">
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2.5 bg-white text-gray-900 hover:bg-gray-100 font-semibold px-7 py-4 rounded-xl text-sm transition-colors shadow-sm"
+              >
+                <Users className="h-4 w-4 text-brand-600" />
+                <span>Join the Community Space</span>
+                <ExternalLink className="h-4 w-4 text-gray-400" />
+              </a>
+              <p className="text-xs text-gray-600 mt-3">
+                Replace the link above with your Discord, LinkedIn group, or Reddit community URL.
+              </p>
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 text-sm border-t border-gray-800">
+      <footer className="bg-gray-950 text-gray-500 py-8 text-sm border-t border-gray-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <Brain className="h-5 w-5 text-brand-500" />
